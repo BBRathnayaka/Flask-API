@@ -1,5 +1,6 @@
 from flask import Flask, redirect, url_for, render_template, request
 import requests
+import json
 from bs4 import BeautifulSoup
 
 app = Flask(__name__)
@@ -18,12 +19,14 @@ def create():
 
 @app.route("/<site>")
 def site(site):
-    github_html = requests.get(f'https://github.com/{site}').text
-    soup = BeautifulSoup(github_html, "html.parser")
-    repos = soup.find('span',class_="Counter").text
-     
-    # return result
-    return f"Created site - {repos}"
+
+    GITLAB_TOKEN = 'glpat-YtoG4jamqJDzMB9xc_67'
+    url = f"https://gitlab.com/api/v4/projects/"
+    head = {'Authorization': 'Bearer {}'.format(GITLAB_TOKEN)}
+    params = {'name': {site}, 'visibility': 'private'}
+
+    r = requests.post(url, headers=head, params=params)
+    return json.dumps(r.json())
 
 if __name__ == "__main__":
     app.run(debug=True)
